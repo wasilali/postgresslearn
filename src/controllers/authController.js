@@ -1,25 +1,28 @@
 const { createUser, findUserByEmail } = require('../models/userModel.js');
-const jwt = require('fastify-jwt');
 const bcrypt = require('bcrypt');
 const { Pool } = require('pg');
+const dotenv = require('dotenv');
+
+dotenv.config();
+
 const pool = new Pool({
-    connectionString: "postgres://postgres:postgres@localhost:5432/testbase",
+    connectionString: process.env.POSTGRES_DB_URL,
 });
 
 async function register(req, reply) {
     const { name, email, password } = req.body;
     const user = await createUser(pool, name, email, password);
-    console.log(user);
     reply.send({ user });
 }
 
 async function login(req, reply) {
     const { email, password } = req.body;
     const user = await findUserByEmail(pool, email);
+    console.log(user,"user");
     if (!user || !(await bcrypt.compare(password, user.password))) {
-        return reply.status(401).send({ message: 'Invalid credentials' });
+        return reply.status(401).send({ message: user.message });
     }
-    const token = this.jwt.sign({ id: user.id }, { secret: 'supersecret', expiresIn: '1h' });
+    const token = this.jwt.sign({ id: user.id }, { secret: process.env.JWT_SECRET, expiresIn: process.env.JWT_EXPIRES_IN });
     reply.send({ user, token }); 
 }
 
@@ -31,9 +34,6 @@ async function getSingleUser(req, reply) {
 async function editPassword(req, reply) {
     const { currentPassword, newPassword } = req.body;
     const userId = req.user.id;
-    console.log(userId,'class');
-    
-
     try {
         // Get the user from the database
         const result = await pool.query('SELECT * FROM users WHERE id = $1', [userId]);

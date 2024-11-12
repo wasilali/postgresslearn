@@ -1,7 +1,8 @@
 async function dbConnector(fastify, options) {
+    
     const { Client } = require('pg');
     const client = new Client({
-        connectionString: "postgres://postgres:postgres@localhost:5432/testbase",
+        connectionString: process.env.POSTGRES_DB_URL,
     });
     try {
         await client.connect();

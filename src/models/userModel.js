@@ -16,7 +16,7 @@ async function findUserByEmail(pg, email) {
         const result = await pg.query('SELECT * FROM users WHERE email = $1', [email]);
         return result.rows[0];
     } catch (error) {
-        console.error('Error finding user by email:', error);
+        console.error('Error finding user by email:', error.message);
         throw error;
     }
 }

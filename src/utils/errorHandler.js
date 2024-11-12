@@ -2,7 +2,7 @@ function errorHandler(err, req, reply) {
     console.error(err);
 
     let statusCode = 500;
-    let errorMessage = 'Internal Server Error';
+    let errorMessage = err.message || 'Internal Server Error';
 
     if (err.validation) {
         statusCode = 400; 
